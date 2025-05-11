@@ -1,0 +1,30 @@
+# .NET Core
+bin/
+obj/
+out/
+
+# Visual Studio Code
+.vscode/
+
+# Auto-generated files
+*.dbmdl
+*.log
+*.scc
+
+# Visual Studio working files
+.vs/
+*.csproj.user
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# .NET Core Secret Manager secrets.json file
+**/secrets.json
+
+# Azure Functions
+local.settings.json
+
+# NCrunch
+*.ncrunch*
+NCrunchTemp/
