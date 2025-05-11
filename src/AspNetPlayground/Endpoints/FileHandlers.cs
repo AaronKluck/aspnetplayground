@@ -1,10 +1,5 @@
 namespace AspNetPlayground.Endpoints;
 
-using Microsoft.AspNetCore.Http;
-using System;
-using System.IO;
-using System.Threading.Tasks;
-
 public static class FileHandlers
 {
     public static async Task<IResult> ReadFileAsync()

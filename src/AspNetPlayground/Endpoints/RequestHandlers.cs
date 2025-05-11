@@ -1,11 +1,7 @@
 namespace AspNetPlayground.Endpoints;
 
-using Microsoft.AspNetCore.Http;
-using System;
 using System.Text.Json;
-using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 public static class RequestHandlers
 {
