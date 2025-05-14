@@ -84,15 +84,25 @@ public class LinqSampler
 {
     public class Sample
     {
-        public required List<Product> Products { get; set; }
-        public required List<Customer> Customers { get; set; }
-        public required List<Order> Orders { get; set; }
-        public required List<OrderItem> OrderItems { get; set; }
-        public required List<Employee> Employees { get; set; }
-        public required List<Skill> Skills { get; set; }
+        public List<Product> Products { get; }
+        public List<Customer> Customers { get; }
+        public List<Order> Orders { get; }
+        public List<OrderItem> OrderItems { get; }
+        public List<Employee> Employees { get; }
+        public List<Skill> Skills { get; }
+
+        public Sample(List<Product> products, List<Customer> customers, List<Order> orders, List<OrderItem> orderItems, List<Employee> employees, List<Skill> skills)
+        {
+            Products = products;
+            Customers = customers;
+            Orders = orders;
+            OrderItems = orderItems;
+            Employees = employees;
+            Skills = skills;
+        }
     }
 
-    public Sample Create()
+    public static Sample Create()
     {
         // Create sample products
         List<Product> products = new List<Product>
@@ -113,11 +123,11 @@ public class LinqSampler
         List<Customer> customers = new List<Customer>
         {
             new Customer { Id = 1, Name = "John Smith", Email = "john.smith@example.com", Type = CustomerType.Regular, JoinDate = new DateTime(2021, 3, 15), Country = "USA", TotalPurchases = 750.50m },
-            new Customer { Id = 2, Name = "Emma Johnson", Email = "emma.j@example.com", Type = CustomerType.Premium, JoinDate = new DateTime(2020, 11, 8), Country = "Canada", TotalPurchases = 3200.75m },
+            new Customer { Id = 2, Name = "Emma Johnson", Email = "emma.j@example.com", Type = CustomerType.Premium, JoinDate = new DateTime(2020, 11, 8), Country = "Canada", TotalPurchases = 200.75m },
             new Customer { Id = 3, Name = "Liam Wilson", Email = "liam@example.com", Type = CustomerType.Regular, JoinDate = new DateTime(2022, 1, 20), Country = "USA", TotalPurchases = 450.25m },
             new Customer { Id = 4, Name = "Olivia Brown", Email = "olivia.brown@example.com", Type = CustomerType.VIP, JoinDate = new DateTime(2019, 6, 5), Country = "UK", TotalPurchases = 8750.00m },
             new Customer { Id = 5, Name = "Noah Davis", Email = "noah.d@example.com", Type = CustomerType.Regular, JoinDate = new DateTime(2022, 5, 12), Country = "Australia", TotalPurchases = 325.50m },
-            new Customer { Id = 6, Name = "Sophia Martinez", Email = "sophia@example.com", Type = CustomerType.Premium, JoinDate = new DateTime(2020, 9, 30), Country = "USA", TotalPurchases = 2150.25m },
+            new Customer { Id = 6, Name = "Sophia Martinez", Email = "sophia@example.com", Type = CustomerType.Premium, JoinDate = new DateTime(2022, 9, 30), Country = "USA", TotalPurchases = 2150.25m },
             new Customer { Id = 7, Name = "James Taylor", Email = "james.t@example.com", Type = CustomerType.VIP, JoinDate = new DateTime(2018, 12, 15), Country = "Canada", TotalPurchases = 12500.75m },
             new Customer { Id = 8, Name = "Isabella Anderson", Email = "isabella@example.com", Type = CustomerType.Regular, JoinDate = new DateTime(2022, 2, 28), Country = "USA", TotalPurchases = 175.25m }
         };
@@ -143,24 +153,24 @@ public class LinqSampler
         // Create sample order items
         List<OrderItem> orderItems = new List<OrderItem>
         {
-            new OrderItem { Id = 1, OrderId = 1, ProductId = 3, Quantity = 1, UnitPrice = 149.99m, Discount = 0 },
-            new OrderItem { Id = 2, OrderId = 1, ProductId = 4, Quantity = 1, UnitPrice = 89.99m, Discount = 0 },
+            new OrderItem { Id = 1, OrderId = 1, ProductId = 3, Quantity = 3, UnitPrice = 149.99m, Discount = 0 },
+            new OrderItem { Id = 2, OrderId = 1, ProductId = 4, Quantity = 2, UnitPrice = 89.99m, Discount = 0 },
             new OrderItem { Id = 3, OrderId = 2, ProductId = 1, Quantity = 1, UnitPrice = 1299.99m, Discount = 0 },
-            new OrderItem { Id = 4, OrderId = 3, ProductId = 3, Quantity = 1, UnitPrice = 149.99m, Discount = 0 },
-            new OrderItem { Id = 5, OrderId = 4, ProductId = 2, Quantity = 1, UnitPrice = 799.99m, Discount = 100.01m },
-            new OrderItem { Id = 6, OrderId = 5, ProductId = 8, Quantity = 1, UnitPrice = 499.99m, Discount = 0 },
-            new OrderItem { Id = 7, OrderId = 6, ProductId = 4, Quantity = 1, UnitPrice = 89.99m, Discount = 0 },
-            new OrderItem { Id = 8, OrderId = 7, ProductId = 5, Quantity = 1, UnitPrice = 129.99m, Discount = 0 },
-            new OrderItem { Id = 9, OrderId = 8, ProductId = 3, Quantity = 1, UnitPrice = 149.99m, Discount = 0 },
+            new OrderItem { Id = 4, OrderId = 3, ProductId = 3, Quantity = 2, UnitPrice = 149.99m, Discount = 0 },
+            new OrderItem { Id = 5, OrderId = 4, ProductId = 2, Quantity = 3, UnitPrice = 799.99m, Discount = 100.01m },
+            new OrderItem { Id = 6, OrderId = 5, ProductId = 8, Quantity = 4, UnitPrice = 499.99m, Discount = 0 },
+            new OrderItem { Id = 7, OrderId = 6, ProductId = 4, Quantity = 5, UnitPrice = 89.99m, Discount = 0 },
+            new OrderItem { Id = 8, OrderId = 7, ProductId = 5, Quantity = 6, UnitPrice = 129.99m, Discount = 0 },
+            new OrderItem { Id = 9, OrderId = 8, ProductId = 3, Quantity = 7, UnitPrice = 149.99m, Discount = 0 },
             new OrderItem { Id = 10, OrderId = 8, ProductId = 4, Quantity = 1, UnitPrice = 89.99m, Discount = 0 },
-            new OrderItem { Id = 11, OrderId = 8, ProductId = 6, Quantity = 1, UnitPrice = 69.99m, Discount = 39.99m },
-            new OrderItem { Id = 12, OrderId = 9, ProductId = 9, Quantity = 1, UnitPrice = 599.99m, Discount = 0 },
-            new OrderItem { Id = 13, OrderId = 9, ProductId = 1, Quantity = 1, UnitPrice = 1299.99m, Discount = 800m },
-            new OrderItem { Id = 14, OrderId = 10, ProductId = 9, Quantity = 1, UnitPrice = 599.99m, Discount = 0 },
-            new OrderItem { Id = 15, OrderId = 11, ProductId = 5, Quantity = 1, UnitPrice = 129.99m, Discount = 0 },
-            new OrderItem { Id = 16, OrderId = 11, ProductId = 7, Quantity = 1, UnitPrice = 199.99m, Discount = 94m },
-            new OrderItem { Id = 17, OrderId = 12, ProductId = 3, Quantity = 1, UnitPrice = 149.99m, Discount = 0 },
-            new OrderItem { Id = 18, OrderId = 13, ProductId = 10, Quantity = 1, UnitPrice = 299.99m, Discount = 0 }
+            new OrderItem { Id = 11, OrderId = 8, ProductId = 6, Quantity = 2, UnitPrice = 69.99m, Discount = 39.99m },
+            new OrderItem { Id = 12, OrderId = 9, ProductId = 9, Quantity = 3, UnitPrice = 599.99m, Discount = 0 },
+            new OrderItem { Id = 13, OrderId = 9, ProductId = 1, Quantity = 4, UnitPrice = 1299.99m, Discount = 800m },
+            new OrderItem { Id = 14, OrderId = 10, ProductId = 9, Quantity = 5, UnitPrice = 599.99m, Discount = 0 },
+            new OrderItem { Id = 15, OrderId = 11, ProductId = 5, Quantity = 6, UnitPrice = 129.99m, Discount = 0 },
+            new OrderItem { Id = 16, OrderId = 11, ProductId = 7, Quantity = 7, UnitPrice = 199.99m, Discount = 94m },
+            new OrderItem { Id = 17, OrderId = 12, ProductId = 3, Quantity = 8, UnitPrice = 149.99m, Discount = 0 },
+            new OrderItem { Id = 18, OrderId = 13, ProductId = 10, Quantity = 9, UnitPrice = 299.99m, Discount = 0 }
         };
 
         // Link orders to customers
@@ -219,14 +229,13 @@ public class LinqSampler
         employees[6].Skills.AddRange(new List<Skill> { skills[2], skills[6], skills[1] }); // Oscar
         employees[7].Skills.AddRange(new List<Skill> { skills[4], skills[1] });           // Stanley
 
-        return new Sample
-        {
-            Products = products,
-            Customers = customers,
-            Orders = orders,
-            OrderItems = orderItems,
-            Employees = employees,
-            Skills = skills
-        };
+        return new Sample(
+            products,
+            customers,
+            orders,
+            orderItems,
+            employees,
+            skills
+        );
     }
 }
