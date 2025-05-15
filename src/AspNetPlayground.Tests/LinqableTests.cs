@@ -115,12 +115,11 @@ public class LinqableTests
                 p.Name,
                 TotalOrders = oi.Count(),
                 TotalQuantity = oi.Sum(x => x.Quantity),
-                TotalRevenue = oi.Sum(x => x.UnitPrice * x.Quantity)
+                TotalRevenue = oi.Sum(x => (x.UnitPrice - x.Discount) * x.Quantity)
             }
             ).
             OrderByDescending(x => x.TotalOrders).
             ThenByDescending(x => x.TotalQuantity).
-            Take(3).
             ToList();
 
 
@@ -205,7 +204,7 @@ public class LinqableTests
             Select(g => g.Key);
         var result = lessResult.Intersect(moreResult).ToList();
 
-        var expected = new[] {"Appliances"};
+        var expected = new[] { "Appliances" };
         Assert.Equal(expected, result);
     }
 
@@ -221,6 +220,47 @@ public class LinqableTests
     [Fact]
     public void Advanced_Projection_with_Anonymous_Types()
     {
+        var orderResult = Sample.Orders.
+            Where(x => x.OrderDate >= new DateTime(2023, 2, 1) && x.OrderDate < new DateTime(2023, 3, 1)).
+            Join(Sample.Customers, o => o.CustomerId, c => c.Id, (o, c) => new
+            { CustomerName = c.Name, Order = o }
+            );
+
+        var itemResult = Sample.OrderItems.
+            Join(Sample.Products, i => i.ProductId, p => p.Id, (i, p) => new
+            {
+                ProductName = p.Name,
+                i.OrderId,
+                NetAmount = (i.UnitPrice - i.Discount) * i.Quantity
+            }
+            );
+
+        var result = orderResult.
+            GroupJoin(itemResult, o => o.Order.Id, i => i.OrderId, (o, i) => new
+            {
+                OrderId = o.Order.Id,
+                o.CustomerName,
+                o.Order.Status,
+                ProductNames = i.Select(x => x.ProductName).ToList(),
+                TotalAmount = i.Sum(x => x.NetAmount),
+                o.Order.OrderDate,
+            }
+        ).
+        OrderBy(x => x.OrderDate).
+        ToList();
+
+        var expected = new[]
+        {
+            new {OrderId = 5, CustomerName = "John Smith", Status=OrderStatus.Delivered, ProductNames=new List<string>{"Gaming Console"}, TotalAmount = 1999.96m, OrderDate = new DateTime(2023, 2, 3)},
+            new {OrderId = 6, CustomerName = "Noah Davis", Status=OrderStatus.Processing, ProductNames=new List<string>{"Coffee Maker"}, TotalAmount = 449.95m, OrderDate = new DateTime(2023, 2, 10)},
+            new {OrderId = 7, CustomerName = "Emma Johnson", Status=OrderStatus.Shipped, ProductNames=new List<string>{"Fitness Tracker"}, TotalAmount = 779.94m, OrderDate = new DateTime(2023, 2, 15)},
+            new {OrderId = 8, CustomerName = "Sophia Martinez", Status=OrderStatus.Processing, ProductNames=new List<string>{"Bluetooth Headphones", "Coffee Maker", "Blender"}, TotalAmount = 1199.92m, OrderDate = new DateTime(2023, 2, 20)},
+        };
+        Assert.Equal(
+            expected.Select(e => (e.OrderId, e.CustomerName, e.Status, e.ProductNames, e.TotalAmount, e.OrderDate)),
+            result.Select(r => (r.OrderId, r.CustomerName, r.Status, r.ProductNames, r.TotalAmount, r.OrderDate))
+        );
+
     }
 
     /*
@@ -236,7 +276,31 @@ public class LinqableTests
     [Fact]
     public void Advaned_Grouping_with_Nested_Results()
     {
+        var result = Sample.Employees.
+            GroupBy(x => x.Department).
+            Select(g => new
+            {
+                Department = g.Key,
+                EmployeeCount = g.Count(),
+                AverageSalary = Math.Round(g.Average(x => x.Salary), 2),
+                MostSeniorEmployee = g.MinBy(x => x.HireDate)!.Name,
+                Skills = g.SelectMany(x => x.Skills).Select(x => x.Name).Distinct().Order().ToList(),
+            }).
+            OrderByDescending(g => g.AverageSalary).
+            ToList();
 
+
+        var expected = new[]
+        {
+            new { Department = "Management", EmployeeCount = 1, AverageSalary = 75000m, MostSeniorEmployee = "Michael Scott", Skills = new List<string>{"Communication", "Leadership", "Presentation"}},
+            new { Department = "Sales", EmployeeCount = 3, AverageSalary = 53333.33m, MostSeniorEmployee = "Dwight Schrute", Skills = new List<string>{"Communication", "Customer Service", "Office Management", "Presentation", "Sales"}},
+            new { Department = "Accounting", EmployeeCount = 3, AverageSalary = 50500m, MostSeniorEmployee = "Oscar Martinez", Skills = new List<string>{"Accounting", "Communication", "Excel"}},
+            new { Department = "Reception", EmployeeCount = 1, AverageSalary = 45000m, MostSeniorEmployee = "Pam Beesly", Skills = new List<string>{"Communication", "Customer Service", "Office Management"}},
+        };
+        Assert.Equal(
+            expected.Select(e => (e.Department, e.EmployeeCount, e.AverageSalary, e.MostSeniorEmployee, e.Skills)),
+            result.Select(r => (r.Department, r.EmployeeCount, r.AverageSalary, r.MostSeniorEmployee, r.Skills))
+        );
     }
 
     /**
@@ -252,7 +316,13 @@ public class LinqableTests
     [Fact]
     public void Pagination_and_Sorting()
     {
+        var result = LinqSampler.GetProductPage(Sample.Products, 2, 3, x => x.Price, true);
 
+        var expected = new List<Product>
+        {
+            Sample.Products[7], Sample.Products[9], Sample.Products[6]
+        };
+        Assert.Equal(expected, result);
     }
 
     /**
@@ -265,6 +335,25 @@ public class LinqableTests
     [Fact]
     public void Custom_Aggregation_and_Reduction()
     {
+        var result = Sample.Products.
+            Where(x => x.IsDiscontinued).
+            GroupJoin(Sample.OrderItems, p => p.Id, i => i.ProductId, (p, i) => new
+            {
+                p.Name,
+                PotentialLoss = Math.Round(
+                    i.Sum(x => (x.UnitPrice - x.Discount) * x.Quantity) / 6, 2
+                ),
+            }).
+            ToList();
 
+        var expected = new[]
+        {
+            new { Name= "Blender", PotentialLoss = 10m},
+            new { Name= "Vintage Phone", PotentialLoss = 449.98m}
+        };
+        Assert.Equal(
+            expected.Select(e => (e.Name, e.PotentialLoss)),
+            result.Select(r => (r.Name, r.PotentialLoss))
+        );
     }
 }

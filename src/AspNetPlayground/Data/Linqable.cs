@@ -1,4 +1,4 @@
-using Microsoft.Net.Http.Headers;
+using System.Linq.Expressions;
 
 public class Product
 {
@@ -139,10 +139,10 @@ public class LinqSampler
             new Order { Id = 2, CustomerId = 2, OrderDate = new DateTime(2023, 1, 8), TotalAmount = 1299.99m, Status = OrderStatus.Delivered, ShippingAddress = "456 Oak Ave, Somewhere", DiscountApplied = 10 },
             new Order { Id = 3, CustomerId = 3, OrderDate = new DateTime(2023, 1, 12), TotalAmount = 149.99m, Status = OrderStatus.Shipped, ShippingAddress = "789 Pine Rd, Elsewhere", DiscountApplied = 0 },
             new Order { Id = 4, CustomerId = 4, OrderDate = new DateTime(2023, 1, 15), TotalAmount = 699.98m, Status = OrderStatus.Delivered, ShippingAddress = "101 Queen St, London", DiscountApplied = 15 },
-            new Order { Id = 5, CustomerId = 1, OrderDate = new DateTime(2023, 2, 3), TotalAmount = 499.99m, Status = OrderStatus.Delivered, ShippingAddress = "123 Main St, Anytown", DiscountApplied = 0 },
             new Order { Id = 6, CustomerId = 5, OrderDate = new DateTime(2023, 2, 10), TotalAmount = 89.99m, Status = OrderStatus.Processing, ShippingAddress = "202 Beach Rd, Sydney", DiscountApplied = 0 },
-            new Order { Id = 7, CustomerId = 2, OrderDate = new DateTime(2023, 2, 15), TotalAmount = 129.99m, Status = OrderStatus.Shipped, ShippingAddress = "456 Oak Ave, Somewhere", DiscountApplied = 0 },
+            new Order { Id = 5, CustomerId = 1, OrderDate = new DateTime(2023, 2, 3), TotalAmount = 499.99m, Status = OrderStatus.Delivered, ShippingAddress = "123 Main St, Anytown", DiscountApplied = 0 },
             new Order { Id = 8, CustomerId = 6, OrderDate = new DateTime(2023, 2, 20), TotalAmount = 269.98m, Status = OrderStatus.Processing, ShippingAddress = "303 Maple Dr, Anystate", DiscountApplied = 5 },
+            new Order { Id = 7, CustomerId = 2, OrderDate = new DateTime(2023, 2, 15), TotalAmount = 129.99m, Status = OrderStatus.Shipped, ShippingAddress = "456 Oak Ave, Somewhere", DiscountApplied = 0 },
             new Order { Id = 9, CustomerId = 4, OrderDate = new DateTime(2023, 3, 2), TotalAmount = 1099.98m, Status = OrderStatus.Pending, ShippingAddress = "101 Queen St, London", DiscountApplied = 20 },
             new Order { Id = 10, CustomerId = 7, OrderDate = new DateTime(2023, 3, 5), TotalAmount = 599.99m, Status = OrderStatus.Processing, ShippingAddress = "505 River Rd, Toronto", DiscountApplied = 10 },
             new Order { Id = 11, CustomerId = 1, OrderDate = new DateTime(2023, 3, 10), TotalAmount = 235.98m, Status = OrderStatus.Pending, ShippingAddress = "123 Main St, Anytown", DiscountApplied = 0 },
@@ -237,5 +237,21 @@ public class LinqSampler
             employees,
             skills
         );
+    }
+
+    public static List<Product> GetProductPage<T>(
+        List<Product> products,
+        int pageNum,
+        int pageSize,
+        Expression<Func<Product, T>> sortExpression,
+        bool descending = false
+    )
+    {
+        if (pageNum <= 0) throw new ArgumentException("pages are 1-based");
+        var queryable = products.AsQueryable();
+        var sorted = descending ?
+            queryable.OrderByDescending(sortExpression) :
+            queryable.OrderBy(sortExpression);
+        return sorted.Skip(pageSize * (pageNum - 1)).Take(pageSize).ToList();
     }
 }
