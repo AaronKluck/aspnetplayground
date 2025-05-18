@@ -13,7 +13,7 @@ public class LinqableTests
     public void Basic_Filtering_and_Projection()
     {
         var result = Sample.Products.
-            Where(x => x.Category == "Electronics" && x.Price < 500m).
+            Where(x => x.Category == "Electronics" && x.Price < 500m && !x.IsDiscontinued).
             Select(x => new { x.Name, x.Price }).
             OrderBy(x => x.Price).
             ToList();
@@ -22,7 +22,6 @@ public class LinqableTests
         {
             new {Name = "Fitness Tracker", Price = 129.99m},
             new {Name = "Bluetooth Headphones", Price = 149.99m},
-            new {Name = "Vintage Phone", Price = 299.99m},
             new {Name = "Gaming Console", Price = 499.99m},
         };
         Assert.Equal(

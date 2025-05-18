@@ -44,8 +44,31 @@ public class ReferenceTests
         list[2]++;
 
         Assert.Equal(42, list[1]);
-        Assert.Equal(4, list[2]); 
+        Assert.Equal(4, list[2]);
 
     }
 
+    [Fact]
+    public void Thing()
+    {
+        var d = new SortedDictionary<int, string>
+        {
+            [3] = "foo",
+            [2] = "bar",
+            [9] = "cat",
+            [7] = "dog"
+        };
+
+        var t = new List<(int, string)>{};
+        foreach (var (k, v) in d) {
+            Console.WriteLine($"{k}: {v}");
+            t.Add((k, v));
+        }
+        var e = new List<(int, string)>{
+            (2, "bar"), (3, "foo"), (7, "dog"), (9, "cat")
+        };
+
+        Assert.Equal(e, t);
+
+    }
 }

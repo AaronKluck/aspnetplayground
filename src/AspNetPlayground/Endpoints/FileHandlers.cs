@@ -1,14 +1,21 @@
 namespace AspNetPlayground.Endpoints;
 
-public static class FileHandlers
+/**
+ * An interface for the sake of making an async interface.
+ */
+interface IFileHandler
 {
-    public static async Task<IResult> ReadFileAsync()
-    {
-        string filePath = "sample.txt";
+    Task<IResult> ReadFileAsync(string filePath);
+}
 
+public class FileHandlerInternal : IFileHandler
+{
+    public async Task<IResult> ReadFileAsync(string filePath)
+    {
+        Console.WriteLine($"{Environment.CurrentManagedThreadId}: /file");
         if (!File.Exists(filePath))
         {
-            return Results.NotFound("File not found.");
+            return Results.NotFound($"{Environment.CurrentManagedThreadId}: File not found.");
         }
 
         string content;
@@ -18,9 +25,21 @@ public static class FileHandlers
         }
         catch (Exception ex)
         {
-            return Results.Problem($"Error reading file: {ex.Message}");
+            return Results.Problem($"{Environment.CurrentManagedThreadId}: Error reading file: {ex.Message}");
         }
 
-        return Results.Text(content);
+        return Results.Text($"{Environment.CurrentManagedThreadId}: {content}");
+    }
+}
+
+public static class FileHandlers
+{
+    private static readonly IFileHandler @internal = new FileHandlerInternal();
+
+    public static async Task<IResult> ReadFileAsync()
+    {
+        string filePath = "sample.txt";
+
+        return await @internal.ReadFileAsync(filePath);
     }
 }

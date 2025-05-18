@@ -9,16 +9,17 @@ public static class RequestHandlers
 
     public static async Task<IResult> EchoRequestAsync(HttpRequest request)
     {
+        Console.WriteLine($"{Environment.CurrentManagedThreadId}: /echo");
         try
         {
             using var reader = new StreamReader(request.Body, Encoding.UTF8);
             var requestBody = await reader.ReadToEndAsync();
-            Console.WriteLine($"Request Body: {requestBody}");
+            Console.WriteLine($"{Environment.CurrentManagedThreadId}: Request Body: {requestBody}");
 
             var echoRequest = JsonSerializer.Deserialize<EchoRequest>(requestBody);
 
             if (echoRequest == null)
-                return Results.BadRequest("Invalid JSON payload.");
+                return Results.BadRequest($"{Environment.CurrentManagedThreadId}: Invalid JSON payload.");
 
             var response = new
             {
@@ -30,7 +31,7 @@ public static class RequestHandlers
         }
         catch (Exception ex)
         {
-            return Results.Problem($"Error processing request: {ex.Message}");
+            return Results.Problem($"{Environment.CurrentManagedThreadId}: Error processing request: {ex.Message}");
         }
     }
 }
